@@ -1,158 +1,60 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-
-type Prompt = {
-  id: string
-  content: string
-  created_at: string
-}
-
-const API_URL = process.env.NEXT_PUBLIC_API_URL
+import PromptForm from '@/components/PromptForm'
+import PromptList from '@/components/PromptList'
+import { fetchPrompts, createPrompt, updatePrompt, deletePrompt } from '@/lib/api'
+import type { Prompt } from '@/types'
 
 export default function Home() {
-  const [content, setContent]         = useState('')
-  const [prompts, setPrompts]         = useState<Prompt[]>([])
-  const [loading, setLoading]         = useState(false)
-  const [editingId, setEditingId]     = useState<string | null>(null)
-  const [editContent, setEditContent] = useState('')
+  const [prompts, setPrompts] = useState<Prompt[]>([])
 
-  useEffect(() => { fetchPrompts() }, [])
+  useEffect(() => {
+    fetchPrompts().then(setPrompts).catch(console.error)
+  }, [])
 
-  // READ
-  async function fetchPrompts() {
-    const res = await fetch(`${API_URL}/prompts`)
-    const data = await res.json()
-    if (data.prompts) setPrompts(data.prompts)
+  async function handleSave(content: string) {
+    const created = await createPrompt(content)
+    setPrompts((prev) => [created, ...prev])
   }
 
-  // CREATE
-  async function savePrompt() {
-    if (!content.trim()) return
-    setLoading(true)
-    await fetch(`${API_URL}/prompts`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content })
-    })
-    setContent('')
-    await fetchPrompts()
-    setLoading(false)
+  async function handleUpdate(id: string, content: string) {
+    const updated = await updatePrompt(id, content)
+    setPrompts((prev) => prev.map((p) => (p.id === id ? updated : p)))
   }
 
-  // UPDATE
-  async function updatePrompt(id: string) {
-    if (!editContent.trim()) return
-    await fetch(`${API_URL}/prompts/${id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: editContent })
-    })
-    setEditingId(null)
-    await fetchPrompts()
-  }
-
-  // DELETE
-  async function deletePrompt(id: string) {
-    if (!confirm('Bu promptu silmek istediğinize emin misiniz?')) return
-    await fetch(`${API_URL}/prompts/${id}`, { method: 'DELETE' })
-    await fetchPrompts()
-  }
-
-  function startEdit(p: Prompt) {
-    setEditingId(p.id)
-    setEditContent(p.content)
+  async function handleDelete(id: string) {
+    await deletePrompt(id)
+    setPrompts((prev) => prev.filter((p) => p.id !== id))
   }
 
   return (
-    <main className="max-w-2xl mx-auto p-8">
-      <h1 className="text-3xl font-bold mb-2">🧠 AI Prompt Kayıt</h1>
-      <p className="text-gray-500 mb-8">Promptlarını kaydet, düzenle, yönet.</p>
-
-      {/* CREATE */}
-      <div className="mb-8 bg-gray-50 rounded-xl p-6 border">
-        <textarea
-          className="w-full border rounded-lg p-4 h-32 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-black bg-white"
-          placeholder="Prompt'unuzu buraya yazın..."
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-        />
-        <div className="flex justify-between items-center mt-2">
-          <span className="text-xs text-gray-400">{content.length} karakter</span>
-          <button
-            onClick={savePrompt}
-            disabled={loading || !content.trim()}
-            className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 disabled:opacity-50 transition-colors"
-          >
-            {loading ? 'Kaydediliyor...' : '💾 Kaydet'}
-          </button>
+    <main className="mx-auto max-w-2xl px-4 py-12">
+      <div className="mb-8 flex items-start justify-between">
+        <div>
+          <h1 className="text-2xl font-semibold tracking-tight text-zinc-50">
+            AI Prompt Kayıt
+          </h1>
+          <p className="mt-1 text-sm text-zinc-500">
+            Promptlarını kaydet, yönet ve keşfet
+          </p>
         </div>
-      </div>
-
-      {/* LIST */}
-      <div className="flex justify-between items-center mb-4">
-        <h2 className="text-xl font-semibold">Kayıtlı Promptlar</h2>
-        <span className="text-sm text-gray-400 bg-gray-100 px-3 py-1 rounded-full">
-          {prompts.length} prompt
+        <span className="mt-1 rounded-full border border-zinc-800 bg-zinc-900 px-3 py-1 text-xs font-medium text-zinc-400">
+          {prompts.length} kayıt
         </span>
       </div>
 
-      {prompts.length === 0 && (
-        <p className="text-gray-400 text-center py-12">Henüz kayıtlı prompt yok.</p>
-      )}
+      <div className="mb-6">
+        <PromptForm onSave={handleSave} />
+      </div>
 
-      <ul className="space-y-3">
-        {prompts.map((p) => (
-          <li key={p.id} className="border rounded-xl p-4 bg-white shadow-sm">
-            {editingId === p.id ? (
-              <div>
-                <textarea
-                  className="w-full border rounded-lg p-3 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 text-black text-sm"
-                  value={editContent}
-                  onChange={(e) => setEditContent(e.target.value)}
-                />
-                <div className="flex gap-2 mt-2">
-                  <button
-                    onClick={() => updatePrompt(p.id)}
-                    className="bg-green-600 text-white px-4 py-1.5 rounded-lg text-sm hover:bg-green-700 transition-colors"
-                  >
-                    ✅ Kaydet
-                  </button>
-                  <button
-                    onClick={() => setEditingId(null)}
-                    className="bg-gray-200 text-gray-700 px-4 py-1.5 rounded-lg text-sm hover:bg-gray-300 transition-colors"
-                  >
-                    İptal
-                  </button>
-                </div>
-              </div>
-            ) : (
-              <div>
-                <p className="text-gray-800 text-sm leading-relaxed">{p.content}</p>
-                <div className="flex justify-between items-center mt-3">
-                  <span className="text.xs text-gray-400">
-                    {new Date(p.created_at).toLocaleString('tr-TR')}
-                  </span>
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => startEdit(p)}
-                      className="text-xs bg-amber-100 text-amber-700 px-3 py-1 rounded-lg hover:bg-amber-200 transition-colors"
-                    >
-                      ✏️ Düzenle
-                    </button>
-                    <button
-                      onClick={() => deletePrompt(p.id)}
-                      className="text-xs bg-red-100 text-red-600 px-3 py-1 rounded-lg hover:bg-red-200 transition-colors"
-                    >
-                      🗑️ Sil
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div className="mb-6 flex items-center gap-3">
+        <div className="h-px flex-1 bg-zinc-800" />
+        <span className="text-xs text-zinc-600">Kayıtlı Promptlar</span>
+        <div className="h-px flex-1 bg-zinc-800" />
+      </div>
+
+      <PromptList prompts={prompts} onUpdate={handleUpdate} onDelete={handleDelete} />
     </main>
   )
 }
