@@ -1,13 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { supabase } from '@/lib/supabase'
 
 type Prompt = {
   id: string
   content: string
   created_at: string
 }
+
+const API_URL = process.env.NEXT_PUBLIC_API_URL
 
 export default function Home() {
   const [content, setContent]         = useState('')
@@ -18,19 +19,22 @@ export default function Home() {
 
   useEffect(() => { fetchPrompts() }, [])
 
+  // READ
   async function fetchPrompts() {
-    const { data } = await supabase
-      .from('prompts')
-      .select('*')
-      .order('created_at', { ascending: false })
-    if (data) setPrompts(data)
+    const res = await fetch(`${API_URL}/prompts`)
+    const data = await res.json()
+    if (data.prompts) setPrompts(data.prompts)
   }
 
   // CREATE
   async function savePrompt() {
     if (!content.trim()) return
     setLoading(true)
-    await supabase.from('prompts').insert([{ content }])
+    await fetch(`${API_URL}/prompts`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content })
+    })
     setContent('')
     await fetchPrompts()
     setLoading(false)
@@ -39,7 +43,11 @@ export default function Home() {
   // UPDATE
   async function updatePrompt(id: string) {
     if (!editContent.trim()) return
-    await supabase.from('prompts').update({ content: editContent }).eq('id', id)
+    await fetch(`${API_URL}/prompts/${id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: editContent })
+    })
     setEditingId(null)
     await fetchPrompts()
   }
@@ -47,7 +55,7 @@ export default function Home() {
   // DELETE
   async function deletePrompt(id: string) {
     if (!confirm('Bu promptu silmek istediğinize emin misiniz?')) return
-    await supabase.from('prompts').delete().eq('id', id)
+    await fetch(`${API_URL}/prompts/${id}`, { method: 'DELETE' })
     await fetchPrompts()
   }
 
@@ -97,7 +105,6 @@ export default function Home() {
         {prompts.map((p) => (
           <li key={p.id} className="border rounded-xl p-4 bg-white shadow-sm">
             {editingId === p.id ? (
-              /* EDIT MODU */
               <div>
                 <textarea
                   className="w-full border rounded-lg p-3 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-green-500 text-black text-sm"
@@ -120,11 +127,10 @@ export default function Home() {
                 </div>
               </div>
             ) : (
-              /* GÖRÜNTÜLEME MODU */
               <div>
                 <p className="text-gray-800 text-sm leading-relaxed">{p.content}</p>
                 <div className="flex justify-between items-center mt-3">
-                  <span className="text-xs text-gray-400">
+                  <span className="text.xs text-gray-400">
                     {new Date(p.created_at).toLocaleString('tr-TR')}
                   </span>
                   <div className="flex gap-2">
