@@ -53,13 +53,13 @@ export default function PromptCard({ prompt, onUpdate, onDelete }: Props) {
           <div className="mt-2 flex gap-2">
             <button
               onClick={handleUpdate}
-              className="rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500"
+              className="cursor-pointer rounded-lg bg-emerald-600 px-4 py-1.5 text-xs font-medium text-white transition hover:bg-emerald-500"
             >
               Güncelle
             </button>
             <button
               onClick={handleCancelEdit}
-              className="rounded-lg bg-zinc-800 px-4 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-zinc-700"
+              className="cursor-pointer rounded-lg bg-zinc-800 px-4 py-1.5 text-xs font-medium text-zinc-300 transition hover:bg-zinc-700"
             >
               İptal
             </button>
@@ -73,13 +73,13 @@ export default function PromptCard({ prompt, onUpdate, onDelete }: Props) {
             <div className="flex items-center gap-1">
               <button
                 onClick={handleCopy}
-                className="rounded-md px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200"
+                className="cursor-pointer rounded-md px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200"
               >
                 {copied ? 'Kopyalandı!' : 'Kopyala'}
               </button>
               <button
                 onClick={() => { setEditContent(prompt.content); setEditing(true) }}
-                className="rounded-md px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200"
+                className="cursor-pointer rounded-md px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-zinc-800 hover:text-zinc-200"
               >
                 Düzenle
               </button>
@@ -88,13 +88,13 @@ export default function PromptCard({ prompt, onUpdate, onDelete }: Props) {
                   <span className="text-xs text-zinc-600">Emin misin?</span>
                   <button
                     onClick={() => onDelete(prompt.id)}
-                    className="rounded-md px-2.5 py-1 text-xs text-red-400 transition hover:bg-red-950"
+                    className="cursor-pointer rounded-md px-2.5 py-1 text-xs text-red-400 transition hover:bg-red-950"
                   >
                     Evet
                   </button>
                   <button
                     onClick={() => setConfirmDelete(false)}
-                    className="rounded-md px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-zinc-800"
+                    className="cursor-pointer rounded-md px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-zinc-800"
                   >
                     Hayır
                   </button>
@@ -102,7 +102,7 @@ export default function PromptCard({ prompt, onUpdate, onDelete }: Props) {
               ) : (
                 <button
                   onClick={() => setConfirmDelete(true)}
-                  className="rounded-md px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
+                  className="cursor-pointer rounded-md px-2.5 py-1 text-xs text-zinc-500 transition hover:bg-red-950 hover:text-red-400"
                 >
                   Sil
                 </button>

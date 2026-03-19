@@ -44,7 +44,7 @@ export default function PromptForm({ onSave }: Props) {
         <button
           onClick={handleSubmit}
           disabled={loading || !content.trim()}
-          className="rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
+          className="cursor-pointer rounded-lg bg-indigo-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-40"
         >
           {loading ? 'Kaydediliyor...' : 'Kaydet'}
         </button>
