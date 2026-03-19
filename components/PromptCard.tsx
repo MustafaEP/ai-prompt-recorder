@@ -67,7 +67,7 @@ export default function PromptCard({ prompt, onUpdate, onDelete }: Props) {
         </div>
       ) : (
         <div>
-          <p className="text-sm leading-relaxed text-zinc-200">{prompt.content}</p>
+          <p className="whitespace-pre-wrap text-sm leading-relaxed text-zinc-200">{prompt.content}</p>
           <div className="mt-3 flex items-center justify-between">
             <span className="text-xs text-zinc-600">{formattedDate}</span>
             <div className="flex items-center gap-1">
