@@ -1,36 +1,46 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Prompt Kayıt
 
-## Getting Started
+AI promptlarını kaydet, düzenle ve yönet.
 
-First, run the development server:
+**Frontend:** https://ai-prompt-recorder.vercel.app
+**Backend API:** https://ai-prompt-recorder-production-b487.up.railway.app/docs
+
+## Stack
+
+- **Frontend:** Next.js 16 + React 19 + Tailwind CSS v4 — Vercel
+- **Backend:** FastAPI (Python) — Railway
+- **Database:** Supabase (PostgreSQL)
+
+## API
+
+| Method | Endpoint | Açıklama |
+|--------|----------|----------|
+| GET | `/prompts` | Tüm promptları listele |
+| POST | `/prompts` | Yeni prompt oluştur |
+| GET | `/prompts/{id}` | Tek prompt getir |
+| PUT | `/prompts/{id}` | Prompt güncelle |
+| DELETE | `/prompts/{id}` | Prompt sil |
+| GET | `/prompts/meta/count` | Toplam prompt sayısı |
+
+Canlı API dökümantasyonu: https://ai-prompt-recorder-production-b487.up.railway.app/docs
+
+## Geliştirme
+
+### Frontend
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+[http://localhost:3000](http://localhost:3000) adresinde çalışır.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Backend
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
 
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+`.env` dosyasına `SUPABASE_URL` ve `SUPABASE_KEY` değerlerini ekle.
