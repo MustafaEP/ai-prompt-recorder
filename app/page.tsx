@@ -1,32 +1,17 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import PromptForm from '@/components/PromptForm'
 import PromptList from '@/components/PromptList'
-import { fetchPrompts, createPrompt, updatePrompt, deletePrompt } from '@/lib/api'
-import type { Prompt } from '@/types'
+import { usePrompts } from '@/hooks/usePrompts'
 
 export default function Home() {
-  const [prompts, setPrompts] = useState<Prompt[]>([])
+  const { prompts, loading, handleSave, handleUpdate, handleDelete } = usePrompts()
+  const [search, setSearch] = useState('')
 
-  useEffect(() => {
-    fetchPrompts().then(setPrompts).catch(console.error)
-  }, [])
-
-  async function handleSave(content: string) {
-    const created = await createPrompt(content)
-    setPrompts((prev) => [created, ...prev])
-  }
-
-  async function handleUpdate(id: string, content: string) {
-    const updated = await updatePrompt(id, content)
-    setPrompts((prev) => prev.map((p) => (p.id === id ? updated : p)))
-  }
-
-  async function handleDelete(id: string) {
-    await deletePrompt(id)
-    setPrompts((prev) => prev.filter((p) => p.id !== id))
-  }
+  const filtered = search.trim()
+    ? prompts.filter((p) => p.content.toLowerCase().includes(search.toLowerCase()))
+    : prompts
 
   return (
     <main className="mx-auto max-w-2xl px-4 py-12">
@@ -48,13 +33,30 @@ export default function Home() {
         <PromptForm onSave={handleSave} />
       </div>
 
+      <div className="mb-4">
+        <input
+          type="text"
+          placeholder="Promptlarda ara..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full rounded-lg border border-zinc-800 bg-zinc-900 px-4 py-2.5 text-sm text-zinc-100 placeholder-zinc-600 outline-none transition focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500/50"
+        />
+      </div>
+
       <div className="mb-6 flex items-center gap-3">
         <div className="h-px flex-1 bg-zinc-800" />
-        <span className="text-xs text-zinc-600">Kayıtlı Promptlar</span>
+        <span className="text-xs text-zinc-600">
+          {search.trim() ? `${filtered.length} sonuç` : 'Kayıtlı Promptlar'}
+        </span>
         <div className="h-px flex-1 bg-zinc-800" />
       </div>
 
-      <PromptList prompts={prompts} onUpdate={handleUpdate} onDelete={handleDelete} />
+      <PromptList
+        prompts={filtered}
+        loading={loading}
+        onUpdate={handleUpdate}
+        onDelete={handleDelete}
+      />
     </main>
   )
 }
